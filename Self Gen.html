@@ -282,27 +282,49 @@
     addressInput.addEventListener('input', validateAddress);
     syncAppointmentMode();
 
-    form.addEventListener('submit',(e)=>{
+    form.addEventListener('submit', async (e) => {
       syncAppointmentMode();
       validateAddress();
 
-      if(!form.checkValidity()){
+      if (!form.checkValidity()) {
         e.preventDefault();
         form.reportValidity();
-        formStatus.textContent='Please fix the required fields.';
-        formStatus.className='status error';
+        formStatus.textContent = 'Please fix the required fields.';
+        formStatus.className = 'status error';
         return;
       }
 
       e.preventDefault();
       const data = Object.fromEntries(new FormData(form).entries());
       const appointmentsEnabled = appointmentToggle.checked;
-      const t = appointmentsEnabled ? getTimes() : {start:'', end:''};
+      const t = appointmentsEnabled ? getTimes() : { start: '', end: '' };
+      data.set_appointment = appointmentsEnabled ? 'Yes' : 'No';
       data.dripjobs_start_time = t.start;
       data.dripjobs_end_time = t.end;
-      console.log('Payload:', data);
-      formStatus.textContent = appointmentsEnabled ? 'Form ready to submit.' : 'Lead ready to submit.';
-      formStatus.className='status success';
+
+      const webhookUrl = appointmentsEnabled
+        ? 'https://hooks.zapier.com/hooks/catch/19735178/unx4kl8/'
+        : 'https://hooks.zapier.com/hooks/catch/19735178/u7yb79j/';
+
+      try {
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (!res.ok) throw new Error('Webhook failed');
+
+        formStatus.textContent = appointmentsEnabled ? 'Appointment sent successfully.' : 'Lead sent successfully.';
+        formStatus.className = 'status success';
+        form.reset();
+        appointmentToggle.checked = true;
+        syncAppointmentMode();
+      } catch (err) {
+        console.error(err);
+        formStatus.textContent = 'Submission failed. Please try again.';
+        formStatus.className = 'status error';
+      }
     });
   </script>
 </body>
