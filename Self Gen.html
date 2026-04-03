@@ -122,6 +122,16 @@
             <label for="phone">Phone<span class="required">*</span></label>
             <input id="phone" name="phone" type="tel" inputmode="numeric" maxlength="14" placeholder="(605) 555-1234" required>
           </div>
+
+          <div class="field" id="leadOnlyEmailField" style="display:none;">
+            <label for="leadOnlyEmail">Email<span class="required">*</span></label>
+            <input id="leadOnlyEmail" name="lead_only_email" type="email">
+          </div>
+
+          <div class="full" id="leadOnlyNotesField" style="display:none;">
+            <label for="leadOnlyNotes">Notes</label>
+            <textarea id="leadOnlyNotes" name="lead_only_notes"></textarea>
+          </div>
         </div>
 
         <div id="appointmentSection">
@@ -210,135 +220,133 @@
   </div>
 
   <script>
-  const form = document.getElementById('bookingForm');
-  const appointmentToggle = document.getElementById('appointmentToggle');
-  const appointmentSection = document.getElementById('appointmentSection');
-  const submitButton = document.getElementById('submitButton');
-  const phoneInput = document.getElementById('phone');
-  const otherPartyPhoneInput = document.getElementById('otherPartyPhone');
-  const appointmentDateInput = document.getElementById('appointmentDate');
-  const startTimeInput = document.getElementById('startTime');
-  const addressInput = document.getElementById('address');
-  const formStatus = document.getElementById('formStatus');
+    const form = document.getElementById('bookingForm');
+    const appointmentToggle = document.getElementById('appointmentToggle');
+    const appointmentSection = document.getElementById('appointmentSection');
+    const submitButton = document.getElementById('submitButton');
+    const phoneInput = document.getElementById('phone');
+    const otherPartyPhoneInput = document.getElementById('otherPartyPhone');
+    const appointmentDateInput = document.getElementById('appointmentDate');
+    const startTimeInput = document.getElementById('startTime');
+    const addressInput = document.getElementById('address');
+    const formStatus = document.getElementById('formStatus');
 
-  function formatPhone(value) {
-    const d = value.replace(/\D/g, '').slice(0, 10);
-    if (d.length < 4) return d;
-    if (d.length < 7) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
-    return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6, 10)}`;
-  }
-
-  function wirePhone(input) {
-    input.addEventListener('input', () => {
-      input.value = formatPhone(input.value);
-    });
-  }
-
-  wirePhone(phoneInput);
-  wirePhone(otherPartyPhoneInput);
-
-  function pad(n) {
-    return String(n).padStart(2, '0');
-  }
-
-  function toFmt(dt) {
-    return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}:${pad(dt.getSeconds())}`;
-  }
-
-  function getTimes() {
-    const d = appointmentDateInput.value;
-    const t = startTimeInput.value;
-    if (!d || !t) return { start: '', end: '' };
-    const s = new Date(`${d}T${t}:00`);
-    if (Number.isNaN(s.getTime())) return { start: '', end: '' };
-    const e = new Date(s.getTime() + 90 * 60 * 1000);
-    return { start: toFmt(s), end: toFmt(e) };
-  }
-
-  function validateAddress() {
-    if (!appointmentToggle.checked) {
-      addressInput.setCustomValidity('');
-      return;
+    function formatPhone(value){
+      const d=value.replace(/\D/g,'').slice(0,10);
+      if(d.length<4)return d;
+      if(d.length<7)return `(${d.slice(0,3)}) ${d.slice(3)}`;
+      return `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6,10)}`;
     }
-    const value = addressInput.value.trim();
-    const looksReasonable = /\d+/.test(value) && value.length >= 10 && /,/.test(value);
-    if (!looksReasonable) {
-      addressInput.setCustomValidity('Please enter a full street address, including street number and city/state.');
-    } else {
-      addressInput.setCustomValidity('');
+
+    function wirePhone(input){
+      input.addEventListener('input',()=>{input.value=formatPhone(input.value)});
     }
-  }
 
-  function syncAppointmentMode() {
-    const enabled = appointmentToggle.checked;
-    appointmentSection.style.display = enabled ? '' : 'none';
-    submitButton.textContent = enabled ? 'Book Appointment' : 'Submit';
+    wirePhone(phoneInput);
+    wirePhone(otherPartyPhoneInput);
 
-    document.getElementById('appointmentDate').required = enabled;
-    document.getElementById('email').required = enabled;
-    document.getElementById('address').required = enabled;
-    document.getElementById('startTime').required = enabled;
-    document.getElementById('appointmentNeeds').required = enabled;
+    function pad(n){return String(n).padStart(2,'0')}
+    function toFmt(dt){return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}:${pad(dt.getSeconds())}`}
 
-    if (!enabled) {
-      addressInput.setCustomValidity('');
+    function getTimes(){
+      const d=appointmentDateInput.value;
+      const t=startTimeInput.value;
+      if(!d||!t) return {start:'',end:''};
+      const s=new Date(`${d}T${t}:00`);
+      if(Number.isNaN(s.getTime())) return {start:'',end:''};
+      const e=new Date(s.getTime()+90*60*1000);
+      return {start:toFmt(s), end:toFmt(e)};
     }
-  }
 
-  appointmentToggle.addEventListener('change', syncAppointmentMode);
-  addressInput.addEventListener('input', validateAddress);
-  syncAppointmentMode();
+    function validateAddress(){
+      if (!appointmentToggle.checked) {
+        addressInput.setCustomValidity('');
+        return;
+      }
+      const value = addressInput.value.trim();
+      const looksReasonable = /\d+/.test(value) && value.length >= 10 && /,/.test(value);
+      if (!looksReasonable) {
+        addressInput.setCustomValidity('Please enter a full street address, including street number and city/state.');
+      } else {
+        addressInput.setCustomValidity('');
+      }
+    }
 
-  form.addEventListener('submit', async (e) => {
+    function syncAppointmentMode(){
+      const enabled = appointmentToggle.checked;
+      const leadOnlyEmailField = document.getElementById('leadOnlyEmailField');
+      const leadOnlyNotesField = document.getElementById('leadOnlyNotesField');
+      const leadOnlyEmail = document.getElementById('leadOnlyEmail');
+      const appointmentEmail = document.getElementById('email');
+
+      appointmentSection.style.display = enabled ? '' : 'none';
+      leadOnlyEmailField.style.display = enabled ? 'none' : '';
+      leadOnlyNotesField.style.display = enabled ? 'none' : '';
+      submitButton.textContent = enabled ? 'Book Appointment' : 'Submit';
+
+      document.getElementById('appointmentDate').required = enabled;
+      appointmentEmail.required = enabled;
+      document.getElementById('address').required = enabled;
+      document.getElementById('startTime').required = enabled;
+      document.getElementById('appointmentNeeds').required = enabled;
+      leadOnlyEmail.required = !enabled;
+
+      if (!enabled) {
+        addressInput.setCustomValidity('');
+        appointmentEmail.value = '';
+      } else {
+        leadOnlyEmail.value = '';
+      }
+    }
+
+    appointmentToggle.addEventListener('change', syncAppointmentMode);
+    addressInput.addEventListener('input', validateAddress);
     syncAppointmentMode();
-    validateAddress();
 
-    if (!form.checkValidity()) {
-      e.preventDefault();
-      form.reportValidity();
-      formStatus.textContent = 'Please fix the required fields.';
-      formStatus.className = 'status error';
-      return;
-    }
-
-    e.preventDefault();
-
-    const data = Object.fromEntries(new FormData(form).entries());
-    const appointmentsEnabled = appointmentToggle.checked;
-    const t = appointmentsEnabled ? getTimes() : { start: '', end: '' };
-
-    data.set_appointment = appointmentsEnabled ? 'Yes' : 'No';
-    data.dripjobs_start_time = t.start;
-    data.dripjobs_end_time = t.end;
-
-    const webhookUrl = appointmentsEnabled
-      ? 'https://hooks.zapier.com/hooks/catch/19735178/unx4kl8/'
-      : 'https://hooks.zapier.com/hooks/catch/19735178/u7yb79j/';
-
-    try {
-      await fetch(webhookUrl, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: new URLSearchParams(data)
-      });
-
-      formStatus.textContent = appointmentsEnabled
-        ? 'Appointment submitted.'
-        : 'Lead submitted.';
-      formStatus.className = 'status success';
-
-      form.reset();
-      appointmentToggle.checked = true;
+    form.addEventListener('submit', async (e) => {
       syncAppointmentMode();
-    } catch (err) {
-      console.error(err);
-      formStatus.textContent = 'Submission failed. Please try again.';
-      formStatus.className = 'status error';
-    }
-  });
-</script>
+      validateAddress();
+
+      if (!form.checkValidity()) {
+        e.preventDefault();
+        form.reportValidity();
+        formStatus.textContent = 'Please fix the required fields.';
+        formStatus.className = 'status error';
+        return;
+      }
+
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+      const appointmentsEnabled = appointmentToggle.checked;
+      const t = appointmentsEnabled ? getTimes() : { start: '', end: '' };
+      data.set_appointment = appointmentsEnabled ? 'Yes' : 'No';
+      data.dripjobs_start_time = t.start;
+      data.dripjobs_end_time = t.end;
+
+      const webhookUrl = appointmentsEnabled
+        ? 'https://hooks.zapier.com/hooks/catch/19735178/unx4kl8/'
+        : 'https://hooks.zapier.com/hooks/catch/19735178/u7yb79j/';
+
+      try {
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: new URLSearchParams(data)
+        });
+
+        if (!res.ok) throw new Error('Webhook failed');
+
+        formStatus.textContent = appointmentsEnabled ? 'Appointment sent successfully.' : 'Lead sent successfully.';
+        formStatus.className = 'status success';
+        form.reset();
+        appointmentToggle.checked = true;
+        syncAppointmentMode();
+      } catch (err) {
+        console.error(err);
+        formStatus.textContent = 'Submission failed. Please try again.';
+        formStatus.className = 'status error';
+      }
+    });
+  </script>
 </body>
 </html>
