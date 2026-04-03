@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>605 Painting Self Generation Form</title>
+  <style>
+    :root { --brand:#5a2ca0; --brand-dark:#45207e; --bg:#f4f1fb; --card:#fff; --text:#1f2937; --border:#d1d5db; --error:#b91c1c; --success:#166534; }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(180deg,var(--bg),#fff);color:var(--text);padding:24px}
+    .wrapper{max-width:860px;margin:0 auto}
+    .card{background:var(--card);border-radius:20px;box-shadow:0 16px 40px rgba(31,41,55,.12);border:1px solid rgba(90,44,160,.12);overflow:hidden}
+    .header{background:linear-gradient(135deg,var(--brand),var(--brand-dark));color:#fff;padding:24px}
+    .header h1{margin:0;font-size:30px}
+    form{padding:24px}
+    .section-title{margin:8px 0 16px;font-size:18px;color:var(--brand-dark)}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:18px}
+    .field,.full{display:flex;flex-direction:column;gap:8px}
+    .full{grid-column:1/-1}
+    label{font-weight:700;font-size:14px}
+    .required{color:var(--error);margin-left:4px}
+    input,select,textarea{width:100%;border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:15px;background:#fff;color:var(--text)}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 4px rgba(90,44,160,.12)}
+    textarea{min-height:110px;resize:vertical}
+    .actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:8px}
+    button{border:0;border-radius:12px;padding:14px 20px;background:var(--brand);color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+    button:hover{background:var(--brand-dark)}
+
+    /* Toggle Switch */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 52px;
+      height: 28px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .3s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--brand);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+    .status{font-size:14px;font-weight:700}
+    .status.success{color:var(--success)} .status.error{color:var(--error)}
+    @media (max-width:720px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="card">
+      <div class="header">
+        <h1>605 Painting Self Generation Form</h1>
+      </div>
+      <form id="bookingForm" novalidate>
+        <div class="section-title">Lead Information</div>
+        <div class="grid">
+          <div class="field">
+            <label>Set Appointment</label>
+            <label class="switch">
+              <input type="checkbox" id="appointmentToggle" name="set_appointment" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="field">
+            <label for="employee">Employee<span class="required">*</span></label>
+            <select id="employee" name="employee" required>
+              <option value="">Select employee</option>
+              <option>Autumn Gordon</option>
+              <option>Daniel Armstrong</option>
+              <option>Dillon Niedan</option>
+              <option>Heath Strand</option>
+              <option>Kyle Schuh</option>
+              <option>Kyle Svendsen</option>
+              <option>Nate Rietz</option>
+              <option>Vicki Grote</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="firstName">First Name<span class="required">*</span></label>
+            <input id="firstName" name="first_name" type="text" required>
+          </div>
+
+          <div class="field">
+            <label for="lastName">Last Name<span class="required">*</span></label>
+            <input id="lastName" name="last_name" type="text" required>
+          </div>
+
+          <div class="field">
+            <label for="phone">Phone<span class="required">*</span></label>
+            <input id="phone" name="phone" type="tel" inputmode="numeric" maxlength="14" placeholder="(605) 555-1234" required>
+          </div>
+        </div>
+
+        <div id="appointmentSection">
+          <div class="section-title appointment-only">Appointment Information</div>
+          <div class="grid">
+            <div class="field">
+              <label for="appointmentDate">Appointment Date<span class="required">*</span></label>
+              <input id="appointmentDate" name="appointment_date" type="date">
+            </div>
+
+            <div class="field">
+              <label for="email">Email<span class="required">*</span></label>
+              <input id="email" name="email" type="email">
+            </div>
+
+            <div class="full">
+              <label for="address">Address<span class="required">*</span></label>
+              <input id="address" name="address" type="text" placeholder="123 Main St, Sioux Falls, SD">
+            </div>
+          </div>
+
+          <div class="section-title appointment-only">Appointment Details</div>
+          <div class="grid">
+            <div class="field">
+              <label for="startTime">Start Time<span class="required">*</span></label>
+              <select id="startTime" name="start_time">
+                <option value="">Select start time</option>
+                <option value="09:00">9:00am</option>
+                <option value="11:00">11:00am</option>
+                <option value="13:00">1:00pm</option>
+                <option value="15:00">3:00pm</option>
+                <option value="17:00">5:00pm</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="twoLeg">2 leg</label>
+              <select id="twoLeg" name="two_leg">
+                <option value="">Select option</option>
+                <option>Yes</option>
+                <option>No</option>
+              </select>
+            </div>
+
+            <div class="full">
+              <label for="appointmentNeeds">Please describe what the homeowner wants us to look at<span class="required">*</span></label>
+              <textarea id="appointmentNeeds" name="appointment_needs"></textarea>
+            </div>
+
+            <div class="full">
+              <label for="areasOfConcern">Areas of concern</label>
+              <textarea id="areasOfConcern" name="areas_of_concern"></textarea>
+            </div>
+
+            <div class="full">
+              <label for="additionalNotes">Additional notes</label>
+              <textarea id="additionalNotes" name="additional_notes"></textarea>
+            </div>
+          </div>
+
+          <div class="section-title appointment-only">Other Party</div>
+          <div class="grid">
+            <div class="field">
+              <label for="otherPartyName">Other party name</label>
+              <input id="otherPartyName" name="other_party_name" type="text">
+            </div>
+
+            <div class="field">
+              <label for="otherPartyRelation">Other party relation to homeowner</label>
+              <input id="otherPartyRelation" name="other_party_relation" type="text">
+            </div>
+
+            <div class="field">
+              <label for="otherPartyPhone">Other party phone number</label>
+              <input id="otherPartyPhone" name="other_party_phone" type="tel" inputmode="numeric" maxlength="14" placeholder="(605) 555-1234">
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" id="submitButton">Book Appointment</button>
+          <span id="formStatus" class="status"></span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('bookingForm');
+    const appointmentToggle = document.getElementById('appointmentToggle');
+    const appointmentSection = document.getElementById('appointmentSection');
+    const submitButton = document.getElementById('submitButton');
+    const phoneInput = document.getElementById('phone');
+    const otherPartyPhoneInput = document.getElementById('otherPartyPhone');
+    const appointmentDateInput = document.getElementById('appointmentDate');
+    const startTimeInput = document.getElementById('startTime');
+    const addressInput = document.getElementById('address');
+    const formStatus = document.getElementById('formStatus');
+
+    function formatPhone(value){
+      const d=value.replace(/\D/g,'').slice(0,10);
+      if(d.length<4)return d;
+      if(d.length<7)return `(${d.slice(0,3)}) ${d.slice(3)}`;
+      return `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6,10)}`;
+    }
+
+    function wirePhone(input){
+      input.addEventListener('input',()=>{input.value=formatPhone(input.value)});
+    }
+
+    wirePhone(phoneInput);
+    wirePhone(otherPartyPhoneInput);
+
+    function pad(n){return String(n).padStart(2,'0')}
+    function toFmt(dt){return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}:${pad(dt.getSeconds())}`}
+
+    function getTimes(){
+      const d=appointmentDateInput.value;
+      const t=startTimeInput.value;
+      if(!d||!t) return {start:'',end:''};
+      const s=new Date(`${d}T${t}:00`);
+      if(Number.isNaN(s.getTime())) return {start:'',end:''};
+      const e=new Date(s.getTime()+90*60*1000);
+      return {start:toFmt(s), end:toFmt(e)};
+    }
+
+    function validateAddress(){
+      if (appointmentToggle.value === 'No') {
+        addressInput.setCustomValidity('');
+        return;
+      }
+      const value = addressInput.value.trim();
+      const looksReasonable = /\d+/.test(value) && value.length >= 10 && /,/.test(value);
+      if (!looksReasonable) {
+        addressInput.setCustomValidity('Please enter a full street address, including street number and city/state.');
+      } else {
+        addressInput.setCustomValidity('');
+      }
+    }
+
+    function syncAppointmentMode(){
+      const enabled = appointmentToggle.checked;
+      appointmentSection.style.display = enabled ? '' : 'none';
+      submitButton.textContent = enabled ? 'Book Appointment' : 'Submit';
+
+      document.getElementById('appointmentDate').required = enabled;
+      document.getElementById('email').required = enabled;
+      document.getElementById('address').required = enabled;
+      document.getElementById('startTime').required = enabled;
+      document.getElementById('appointmentNeeds').required = enabled;
+
+      if (!enabled) {
+        addressInput.setCustomValidity('');
+      }
+    }
+
+    appointmentToggle.addEventListener('change', syncAppointmentMode);
+    addressInput.addEventListener('input', validateAddress);
+    syncAppointmentMode();
+
+    form.addEventListener('submit',(e)=>{
+      syncAppointmentMode();
+      validateAddress();
+
+      if(!form.checkValidity()){
+        e.preventDefault();
+        form.reportValidity();
+        formStatus.textContent='Please fix the required fields.';
+        formStatus.className='status error';
+        return;
+      }
+
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+      const appointmentsEnabled = appointmentToggle.checked;
+      const t = appointmentsEnabled ? getTimes() : {start:'', end:''};
+      data.dripjobs_start_time = t.start;
+      data.dripjobs_end_time = t.end;
+      console.log('Payload:', data);
+      formStatus.textContent = appointmentsEnabled ? 'Form ready to submit.' : 'Lead ready to submit.';
+      formStatus.className='status success';
+    });
+  </script>
+</body>
+</html>
