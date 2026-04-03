@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>605 Painting Appointment Booking (Employee)</title>
+  <title>605 Painting Self Generation Form</title>
   <style>
     :root { --brand:#5a2ca0; --brand-dark:#45207e; --bg:#f4f1fb; --card:#fff; --text:#1f2937; --border:#d1d5db; --error:#b91c1c; --success:#166534; }
     *{box-sizing:border-box}
@@ -80,7 +80,7 @@
   <div class="wrapper">
     <div class="card">
       <div class="header">
-        <h1>605 Painting Appointment Booking</h1>
+        <h1>605 Painting Self Generation Form</h1>
       </div>
       <form id="bookingForm" novalidate>
         <div class="section-title">Lead Information</div>
@@ -310,7 +310,7 @@
         const res = await fetch(webhookUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
+          body: new URLSearchParams(data)
         });
 
         if (!res.ok) throw new Error('Webhook failed');
