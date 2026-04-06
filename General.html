@@ -319,6 +319,7 @@
         <input type="hidden" id="hiddenDripjobsEnd" name="dripjobs_end_time">
         <input type="hidden" id="hiddenTimestamp" name="submission_timestamp">
         <input type="hidden" id="hiddenFullAddress" name="full_address">
+        <input type="hidden" id="urlEmployee" name="url_employee">
 
         <div class="actions">
           <button type="submit">Book Appointment</button>
@@ -343,6 +344,23 @@
     const hiddenDripjobsEnd = document.getElementById('hiddenDripjobsEnd');
     const hiddenTimestamp = document.getElementById('hiddenTimestamp');
     const hiddenFullAddress = document.getElementById('hiddenFullAddress');
+    const params = new URLSearchParams(window.location.search);
+    const employeeFromUrl = params.get('employee');
+
+if (employeeFromUrl) {
+  const employeeField = document.getElementById('employee'); // if you have a dropdown
+  const hiddenUrlEmployee = document.getElementById('urlEmployee'); // hidden field
+
+  if (employeeField) {
+    employeeField.value = employeeFromUrl;
+    // Optional: lock it
+    // employeeField.setAttribute('disabled', 'disabled');
+  }
+
+  if (hiddenUrlEmployee) {
+    hiddenUrlEmployee.value = employeeFromUrl;
+  }
+}
 
     function formatPhone(value) {
       const digits = value.replace(/\D/g, '').slice(0, 10);
