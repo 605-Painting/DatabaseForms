@@ -49,34 +49,9 @@
       align-items: center;
     }
 
-    .logo-box {
-      width: 90px;
-      height: 90px;
-      border-radius: 20px;
-      background: rgba(255,255,255,0.12);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-
-    .logo-box img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
     .header h1 {
       margin: 0 0 8px;
       font-size: 30px;
-    }
-
-    .header p {
-      margin: 0;
-      color: rgba(255,255,255,0.9);
-      line-height: 1.5;
     }
 
     form {
@@ -143,24 +118,6 @@
       resize: vertical;
     }
 
-    .hint {
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.4;
-      margin-top: -2px;
-    }
-
-    .inline-note {
-      background: #f7f4ff;
-      border: 1px solid #e5dbfb;
-      color: var(--brand-dark);
-      border-radius: 12px;
-      padding: 14px;
-      font-size: 14px;
-      line-height: 1.5;
-      margin-bottom: 18px;
-    }
-
     .actions {
       display: flex;
       align-items: center;
@@ -218,7 +175,12 @@
         </div>
       </div>
 
-      <form id="bookingForm" novalidate>
+      <form
+        id="bookingForm"
+        method="POST"
+        action="https://hooks.zapier.com/hooks/catch/19735178/u7yb79j/"
+        novalidate
+      >
         <div class="section-title">Lead Information</div>
         <div class="grid">
           <div class="field">
@@ -337,6 +299,10 @@
           </div>
         </div>
 
+        <input type="hidden" id="hiddenSetAppointment" name="set_appointment" value="Yes">
+        <input type="hidden" id="hiddenDripjobsStart" name="dripjobs_start_time">
+        <input type="hidden" id="hiddenDripjobsEnd" name="dripjobs_end_time">
+
         <div class="actions">
           <button type="submit">Book Appointment</button>
           <span id="formStatus" class="status"></span>
@@ -351,9 +317,10 @@
     const otherPartyPhoneInput = document.getElementById('otherPartyPhone');
     const appointmentDateInput = document.getElementById('appointmentDate');
     const startTimeInput = document.getElementById('startTime');
-    
     const addressInput = document.getElementById('address');
     const formStatus = document.getElementById('formStatus');
+    const hiddenDripjobsStart = document.getElementById('hiddenDripjobsStart');
+    const hiddenDripjobsEnd = document.getElementById('hiddenDripjobsEnd');
 
     function formatPhone(value) {
       const digits = value.replace(/\D/g, '').slice(0, 10);
@@ -408,12 +375,10 @@
 
     wirePhoneFormatting(phoneInput);
     wirePhoneFormatting(otherPartyPhoneInput);
-    
     addressInput.addEventListener('input', validateAddress);
 
     form.addEventListener('submit', (event) => {
       validateAddress();
-      const derivedTimes = getDerivedTimes();
 
       if (!form.checkValidity()) {
         event.preventDefault();
@@ -423,13 +388,11 @@
         return;
       }
 
-      event.preventDefault();
-      const formData = new FormData(form);
-      const payload = Object.fromEntries(formData.entries());
-      payload.dripjobs_start_time = derivedTimes.start;
-      payload.dripjobs_end_time = derivedTimes.end;
-      console.log('Form submission payload:', payload);
-      formStatus.textContent = 'Form is valid and ready to submit.';
+      const derivedTimes = getDerivedTimes();
+      hiddenDripjobsStart.value = derivedTimes.start;
+      hiddenDripjobsEnd.value = derivedTimes.end;
+
+      formStatus.textContent = 'Submitting...';
       formStatus.className = 'status success';
     });
   </script>
