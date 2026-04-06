@@ -82,7 +82,7 @@
       <div class="header">
         <h1>605 Painting Self Generation Form</h1>
       </div>
-      <form id="bookingForm" novalidate>
+      <form id="bookingForm" method="POST" novalidate>
         <div class="section-title">Lead Information</div>
         <div class="grid">
           <div class="field">
@@ -211,6 +211,10 @@
           </div>
         </div>
 
+<input type="hidden" id="hiddenSetAppointment" name="set_appointment">
+<input type="hidden" id="hiddenDripjobsStart" name="dripjobs_start_time">
+<input type="hidden" id="hiddenDripjobsEnd" name="dripjobs_end_time">
+        
         <div class="actions">
           <button type="submit" id="submitButton">Book Appointment</button>
           <span id="formStatus" class="status"></span>
@@ -220,136 +224,130 @@
   </div>
 
   <script>
-    const form = document.getElementById('bookingForm');
-    const appointmentToggle = document.getElementById('appointmentToggle');
-    const appointmentSection = document.getElementById('appointmentSection');
-    const submitButton = document.getElementById('submitButton');
-    const phoneInput = document.getElementById('phone');
-    const otherPartyPhoneInput = document.getElementById('otherPartyPhone');
-    const appointmentDateInput = document.getElementById('appointmentDate');
-    const startTimeInput = document.getElementById('startTime');
-    const addressInput = document.getElementById('address');
-    const formStatus = document.getElementById('formStatus');
+  const form = document.getElementById('bookingForm');
+  const appointmentToggle = document.getElementById('appointmentToggle');
+  const appointmentSection = document.getElementById('appointmentSection');
+  const submitButton = document.getElementById('submitButton');
+  const phoneInput = document.getElementById('phone');
+  const otherPartyPhoneInput = document.getElementById('otherPartyPhone');
+  const appointmentDateInput = document.getElementById('appointmentDate');
+  const startTimeInput = document.getElementById('startTime');
+  const addressInput = document.getElementById('address');
+  const formStatus = document.getElementById('formStatus');
 
-    function formatPhone(value){
-      const d=value.replace(/\D/g,'').slice(0,10);
-      if(d.length<4)return d;
-      if(d.length<7)return `(${d.slice(0,3)}) ${d.slice(3)}`;
-      return `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6,10)}`;
-    }
+  const hiddenSetAppointment = document.getElementById('hiddenSetAppointment');
+  const hiddenDripjobsStart = document.getElementById('hiddenDripjobsStart');
+  const hiddenDripjobsEnd = document.getElementById('hiddenDripjobsEnd');
 
-    function wirePhone(input){
-      input.addEventListener('input',()=>{input.value=formatPhone(input.value)});
-    }
+  function formatPhone(value){
+    const d = value.replace(/\D/g,'').slice(0,10);
+    if (d.length < 4) return d;
+    if (d.length < 7) return `(${d.slice(0,3)}) ${d.slice(3)}`;
+    return `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6,10)}`;
+  }
 
-    wirePhone(phoneInput);
-    wirePhone(otherPartyPhoneInput);
-
-    function pad(n){return String(n).padStart(2,'0')}
-    function toFmt(dt){return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}:${pad(dt.getSeconds())}`}
-
-    function getTimes(){
-      const d=appointmentDateInput.value;
-      const t=startTimeInput.value;
-      if(!d||!t) return {start:'',end:''};
-      const s=new Date(`${d}T${t}:00`);
-      if(Number.isNaN(s.getTime())) return {start:'',end:''};
-      const e=new Date(s.getTime()+90*60*1000);
-      return {start:toFmt(s), end:toFmt(e)};
-    }
-
-    function validateAddress(){
-      if (!appointmentToggle.checked) {
-        addressInput.setCustomValidity('');
-        return;
-      }
-      const value = addressInput.value.trim();
-      const looksReasonable = /\d+/.test(value) && value.length >= 10 && /,/.test(value);
-      if (!looksReasonable) {
-        addressInput.setCustomValidity('Please enter a full street address, including street number and city/state.');
-      } else {
-        addressInput.setCustomValidity('');
-      }
-    }
-
-    function syncAppointmentMode(){
-      const enabled = appointmentToggle.checked;
-      const leadOnlyEmailField = document.getElementById('leadOnlyEmailField');
-      const leadOnlyNotesField = document.getElementById('leadOnlyNotesField');
-      const leadOnlyEmail = document.getElementById('leadOnlyEmail');
-      const appointmentEmail = document.getElementById('email');
-
-      appointmentSection.style.display = enabled ? '' : 'none';
-      leadOnlyEmailField.style.display = enabled ? 'none' : '';
-      leadOnlyNotesField.style.display = enabled ? 'none' : '';
-      submitButton.textContent = enabled ? 'Book Appointment' : 'Submit';
-
-      document.getElementById('appointmentDate').required = enabled;
-      appointmentEmail.required = enabled;
-      document.getElementById('address').required = enabled;
-      document.getElementById('startTime').required = enabled;
-      document.getElementById('appointmentNeeds').required = enabled;
-      leadOnlyEmail.required = !enabled;
-
-      if (!enabled) {
-        addressInput.setCustomValidity('');
-        appointmentEmail.value = '';
-      } else {
-        leadOnlyEmail.value = '';
-      }
-    }
-
-    appointmentToggle.addEventListener('change', syncAppointmentMode);
-    addressInput.addEventListener('input', validateAddress);
-    syncAppointmentMode();
-
-    form.addEventListener('submit', async (e) => {
-      syncAppointmentMode();
-      validateAddress();
-
-      if (!form.checkValidity()) {
-        e.preventDefault();
-        form.reportValidity();
-        formStatus.textContent = 'Please fix the required fields.';
-        formStatus.className = 'status error';
-        return;
-      }
-
-      e.preventDefault();
-      const data = Object.fromEntries(new FormData(form).entries());
-      const appointmentsEnabled = appointmentToggle.checked;
-      const t = appointmentsEnabled ? getTimes() : { start: '', end: '' };
-      data.set_appointment = appointmentsEnabled ? 'Yes' : 'No';
-      data.dripjobs_start_time = t.start;
-      data.dripjobs_end_time = t.end;
-
-      const webhookUrl = appointmentsEnabled
-        ? 'https://hooks.zapier.com/hooks/catch/19735178/unx4kl8/'
-        : 'https://hooks.zapier.com/hooks/catch/19735178/u7yb79j/';
-
-      console.log('Sending to webhook:', webhookUrl);
-      console.log('Payload:', data);
-      
-      try {
-        await fetch(webhookUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          body: new URLSearchParams(data)
-        });
-
-        formStatus.textContent = appointmentsEnabled ? 'Appointment submitted.' : 'Lead submitted.';
-        formStatus.className = 'status success';
-        form.reset();
-        appointmentToggle.checked = true;
-        syncAppointmentMode();
-      } catch (err) {
-        console.error(err);
-        formStatus.textContent = 'Submission failed. Please try again.';
-        formStatus.className = 'status error';
-      }
+  function wirePhone(input){
+    input.addEventListener('input', () => {
+      input.value = formatPhone(input.value);
     });
-  </script>
+  }
+
+  wirePhone(phoneInput);
+  wirePhone(otherPartyPhoneInput);
+
+  function pad(n){ return String(n).padStart(2,'0'); }
+
+  function toFmt(dt){
+    return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}:${pad(dt.getSeconds())}`;
+  }
+
+  function getTimes(){
+    const d = appointmentDateInput.value;
+    const t = startTimeInput.value;
+    if (!d || !t) return { start:'', end:'' };
+
+    const s = new Date(`${d}T${t}:00`);
+    if (Number.isNaN(s.getTime())) return { start:'', end:'' };
+
+    const e = new Date(s.getTime() + 90 * 60 * 1000);
+    return {
+      start: toFmt(s),
+      end: toFmt(e)
+    };
+  }
+
+  function validateAddress(){
+    if (!appointmentToggle.checked) {
+      addressInput.setCustomValidity('');
+      return;
+    }
+
+    const value = addressInput.value.trim();
+    const looksReasonable = /\d+/.test(value) && value.length >= 10 && /,/.test(value);
+
+    if (!looksReasonable) {
+      addressInput.setCustomValidity('Please enter a full street address, including street number and city/state.');
+    } else {
+      addressInput.setCustomValidity('');
+    }
+  }
+
+  function syncAppointmentMode(){
+    const enabled = appointmentToggle.checked;
+    const leadOnlyEmailField = document.getElementById('leadOnlyEmailField');
+    const leadOnlyNotesField = document.getElementById('leadOnlyNotesField');
+    const leadOnlyEmail = document.getElementById('leadOnlyEmail');
+    const appointmentEmail = document.getElementById('email');
+
+    appointmentSection.style.display = enabled ? '' : 'none';
+    leadOnlyEmailField.style.display = enabled ? 'none' : '';
+    leadOnlyNotesField.style.display = enabled ? 'none' : '';
+    submitButton.textContent = enabled ? 'Book Appointment' : 'Submit';
+
+    document.getElementById('appointmentDate').required = enabled;
+    appointmentEmail.required = enabled;
+    document.getElementById('address').required = enabled;
+    document.getElementById('startTime').required = enabled;
+    document.getElementById('appointmentNeeds').required = enabled;
+    leadOnlyEmail.required = !enabled;
+
+    if (!enabled) {
+      addressInput.setCustomValidity('');
+      appointmentEmail.value = '';
+    } else {
+      leadOnlyEmail.value = '';
+    }
+  }
+
+  appointmentToggle.addEventListener('change', syncAppointmentMode);
+  addressInput.addEventListener('input', validateAddress);
+  syncAppointmentMode();
+
+  form.addEventListener('submit', (e) => {
+    syncAppointmentMode();
+    validateAddress();
+
+    if (!form.checkValidity()) {
+      e.preventDefault();
+      form.reportValidity();
+      formStatus.textContent = 'Please fix the required fields.';
+      formStatus.className = 'status error';
+      return;
+    }
+
+    const appointmentsEnabled = appointmentToggle.checked;
+    const times = appointmentsEnabled ? getTimes() : { start:'', end:'' };
+
+    hiddenSetAppointment.value = appointmentsEnabled ? 'Yes' : 'No';
+    hiddenDripjobsStart.value = times.start;
+    hiddenDripjobsEnd.value = times.end;
+
+    form.action = appointmentsEnabled
+      ? 'https://hooks.zapier.com/hooks/catch/19735178/unx4kl8/'
+      : 'https://hooks.zapier.com/hooks/catch/19735178/u7yb79j/';
+
+    console.log('Posting form to:', form.action);
+  });
+</script>
 </body>
 </html>
